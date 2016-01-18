@@ -1,15 +1,26 @@
 'use strict';
 
-var phoneBook; // Здесь вы храните записи как хотите
+var phoneBook = {};
 
 /*
    Функция добавления записи в телефонную книгу.
    На вход может прийти что угодно, будьте осторожны.
 */
 module.exports.add = function add(name, phone, email) {
+    if (phoneBook[name]) {
+        console.log('Это имя уже существует');
+        return;
+    }
 
-    // Ваша невероятная магия здесь
+    if(!isPhoneValid(phone) || !isEmailValid(email)) {
+        console.log('Запись не добавлена. Данные не валидны');
+        return;
+    }
 
+    phoneBook[name] = {
+        phone: phone,
+        email: email
+    };
 };
 
 /*
@@ -17,18 +28,30 @@ module.exports.add = function add(name, phone, email) {
    Поиск ведется по всем полям.
 */
 module.exports.find = function find(query) {
-
-    // Ваша удивительная магия здесь
-
+    Object.keys(phoneBook).forEach(function (name) {
+        var value = phoneBook[name];
+        if (!query) {
+            printFindedRecords (name, value.phone, value.email)
+        } else if (value.phone.indexOf(query) !== -1 || value.email.indexOf(query) !== -1) {
+            printFindedRecords (name, value.phone, value.email)
+        }
+    });
 };
 
 /*
    Функция удаления записи в телефонной книге.
 */
 module.exports.remove = function remove(query) {
+    var keys = Object.keys(phoneBook).filter(function (key) {
+        return key.indexOf(query) !== -1;
+    });
 
-    // Ваша необьяснимая магия здесь
-
+    if (keys.length) {
+        keys.forEach(function (key) {
+            delete phoneBook[key];
+        });
+        console.log(getDeletedMessage(keys.length));
+    }
 };
 
 /*
@@ -50,3 +73,44 @@ module.exports.showTable = function showTable() {
     // Ваша чёрная магия здесь
 
 };
+
+function printFindedRecords (name, phone, email) {
+    console.log(name + ', ' + phone + ', ' + email);
+}
+
+function getDeletedMessage(num) {
+    var pluralContacts = {
+        1: 'контакт',
+        2: 'контакта',
+        5: 'контактов'
+    };
+    var deletedContacts = {
+        1: 'Удалён',
+        2: 'Удалёно'
+    };
+
+    var deleted;
+    var contacts;
+    var units = num % 10;
+    if (units >= 2 && units < 5) {
+        contacts = pluralContacts[2];
+        deleted = deletedContacts[2];
+    } else if (units >= 5) {
+        contacts = pluralContacts[5];
+        deleted = deletedContacts[2];
+    } else {
+        contacts = pluralContacts[1];
+        deleted = deletedContacts[1];
+    }
+    return deleted + ' ' + num + ' ' + contacts;
+}
+
+// TODO: реализовать валидацию
+function isPhoneValid (phone) {
+    return true;
+}
+
+// TODO: реализовать валидацию
+function isEmailValid (email) {
+    return true;
+}
