@@ -32,7 +32,7 @@ module.exports.find = function find(query) {
         var value = phoneBook[name];
         if (!query) {
             printFindedRecords (name, value.phone, value.email)
-        } else if (value.phone.indexOf(query) !== -1 || value.email.indexOf(query) !== -1) {
+        } else if (name.indexOf(query) !== -1 || value.phone.indexOf(query) !== -1 || value.email.indexOf(query) !== -1) {
             printFindedRecords (name, value.phone, value.email)
         }
     });
@@ -105,12 +105,10 @@ function getDeletedMessage(num) {
     return deleted + ' ' + num + ' ' + contacts;
 }
 
-// TODO: реализовать валидацию
 function isPhoneValid (phone) {
-    return true;
+   return /^\+?\d*\s*(\d{3}|\(\d{3}\))\s*\d{3}(\s|-)?\d(\s|-)?\d{3}$/gim.test(phone);
 }
 
-// TODO: реализовать валидацию
 function isEmailValid (email) {
-    return true;
+    return /^\w+@[\wа-яё-]+(\.[\wа-яё]{2,3})+/gim.test(email);
 }
