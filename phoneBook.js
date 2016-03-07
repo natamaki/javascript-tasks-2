@@ -14,7 +14,7 @@ module.exports.add = function add(name, phone, email) {
         return;
     }
 
-    if(!isNameValid(name) || !isPhoneValid(phone) || !isEmailValid(email)) {
+    if (!isNameValid(name) || !isPhoneValid(phone) || !isEmailValid(email)) {
         console.log('Запись не добавлена. Данные не валидны');
         return;
     }
@@ -28,10 +28,9 @@ module.exports.add = function add(name, phone, email) {
 /**
  * Ищет записи в телефонной книге по всем полям.
  * @param {String} query Искомая строка
- * @param {Boolean} isCalledAnyMethod Вызван из другого метода
  * @returns {String[]} Массив найденных имен
  */
-module.exports.find = function find(query, isCalledAnyMethod) {
+function findRecords(query) {
     var findedRecordsNames = [];
 
     Object.keys(phoneBook).forEach(function (name) {
@@ -39,13 +38,25 @@ module.exports.find = function find(query, isCalledAnyMethod) {
         var queryResult = name.indexOf(query) !== -1 || value.phone.indexOf(query) !== -1 || value.email.indexOf(query) !== -1;
 
         if (!query || queryResult) {
-            !isCalledAnyMethod && printFindedRecords(name, value.phone, value.email);
-
             findedRecordsNames.push(name);
         }
     });
 
     return findedRecordsNames;
+}
+
+/**
+ * Находит записи в телефонной книге и печатает их
+ * @param {String} query Искомая строка
+ */
+module.exports.find = function find(query) {
+    var names = findRecords(query);
+
+    names.forEach(function (name) {
+        var value = phoneBook[name];
+
+        printFindedRecords(name, value.phone, value.email);
+    });
 };
 
 /**
@@ -53,7 +64,7 @@ module.exports.find = function find(query, isCalledAnyMethod) {
  * @param {String} query Искомая строка
  */
 module.exports.remove = function remove(query) {
-    var items = module.exports.find(query, true);
+    var items = findRecords(query);
 
     items.forEach(function (item) {
         delete phoneBook[item];
@@ -67,7 +78,7 @@ module.exports.remove = function remove(query) {
  * @param {String} phone
  * @param {String} email
  */
-function printFindedRecords (name, phone, email) {
+function printFindedRecords(name, phone, email) {
     console.log(name + ', ' + phone + ', ' + email);
 }
 
@@ -90,6 +101,11 @@ function getDeletedMessage(num) {
         1: 'Удалён',
         2: 'Удалёно'
     };
+
+    num = String(num);
+    if (num.length > 2) {
+        num = num.slice(-2);
+    }
 
     var deleted;
     var contacts;
@@ -117,8 +133,8 @@ function getDeletedMessage(num) {
  * @param {String} name
  * @returns {Boolean}
  */
-function isNameValid (name) {
-   return name && typeof name === 'string';
+function isNameValid(name) {
+    return name && typeof name === 'string';
 }
 
 /**
@@ -126,8 +142,8 @@ function isNameValid (name) {
  * @param {String} phone
  * @returns {Boolean}
  */
-function isPhoneValid (phone) {
-   return /^\+?\d*\s*(\d{3}|\(\d{3}\))\s*(\d{7}|(\d{3}(\s|-)?\d(\s|-)?\d{3})|\d{3}(\s|-)?\d{2}(\s|-)?\d{2})$/gim.test(phone);
+function isPhoneValid(phone) {
+    return /^\+?\d*\s*(\d{3}|\(\d{3}\))\s*(\d{7}|(\d{3}(\s|-)?\d(\s|-)?\d{3})|\d{3}(\s|-)?\d{2}(\s|-)?\d{2})$/gim.test(phone);
 }
 
 /**
@@ -135,6 +151,6 @@ function isPhoneValid (phone) {
  * @param {String} email
  * @returns {Boolean}
  */
-function isEmailValid (email) {
+function isEmailValid(email) {
     return /^\w+@[\wа-яё-]+(\.[\wа-яё]{2,3})+$/gim.test(email);
 }
